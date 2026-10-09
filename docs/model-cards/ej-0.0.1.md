@@ -196,7 +196,7 @@ calibration, latency or size ranking is claimed.
 The weights are licensed under **Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)**. Adaptations
 must be shared under CC BY-SA 4.0 or a compatible licence. Suggested attribution:
 
-> ej 0.0.1 by the ej contributors, licensed under CC BY-SA 4.0
+> ej 0.0.1 by Saket Bhushan, licensed under CC BY-SA 4.0
 > (https://creativecommons.org/licenses/by-sa/4.0/). Derived from intfloat/e5-small-v2 (MIT; Wang et al., arXiv:2212.03533)
 > and trained on Typed Decisions (Apache-2.0), Banking77 (CC BY 4.0), CLINC150 (CC BY 3.0), GoEmotions (Apache-2.0) and an
 > in-house support-ticket corpus written with Claude Haiku (not released), with distillation from
