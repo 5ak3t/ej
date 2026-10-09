@@ -33,9 +33,11 @@ ARCH_LINE = 'Architecture and method: technical report forthcoming.'
 
 def test_versions_agree_and_weights_point_to_the_hub():
     version = re.search(r'^version = "([^"]+)"', read('pyproject.toml'), re.M).group(1)
-    assert version == ej.__version__ == '0.0.1'
+    assert version == ej.__version__ and version.split('.post')[0] == '0.0.1'  # packaging-only post releases of 0.0.1
+    assert re.search(r'^name = "ejai"', read('pyproject.toml'), re.M) and 'pip install ejai' in read('README.md')
     readme = read('README.md')
-    assert f'version = {{{version}}}' in readme and '## 0.0.1' in read('CHANGELOG.md')
+    assert 'version = {0.0.1}' in readme and f'## {version}' in read('CHANGELOG.md')
+    assert os.path.exists(os.path.join(ROOT, 'docs/releases', f'{version}.md'))
     for rel in DOCS + ['examples/quickstart.py', 'benchmarks/rivals/ej_adapter.py']:
         assert 'not yet published' not in flat(rel).lower() and 'no hosting' not in flat(rel).lower(), rel
     for rel in ('README.md', CARD, 'docs/releases/0.0.1.md'):
@@ -175,8 +177,11 @@ def test_ci_tests_and_release_workflows():
     assert rel['jobs']['release']['needs'] == 'tests' and rel['jobs']['release']['permissions'] == {'contents': 'write'}
     text = read('.github/workflows/release.yml')
     assert 'python -m build' in text and 'gh release create "$GITHUB_REF_NAME" dist/* SHA256SUMS' in text
-    for word in ('secrets.', 'twine upload', 'pypi-publish@'):
+    for word in ('secrets.', 'twine upload', 'password'):
         assert word not in text, word
+    pypi = rel['jobs']['pypi']  # trusted publishing (OIDC) only, after the GitHub Release
+    assert pypi['needs'] == 'release' and pypi['permissions'] == {'id-token': 'write'} and pypi['environment']['name'] == 'pypi'
+    assert re.search(r'uses: pypa/gh-action-pypi-publish@v\d+\.\d+\.\d+', text)
     for f in ('tests.yml', 'release.yml'):
         uses = re.findall(r'uses: (actions/[\w-]+)@(\S+)', read(f'.github/workflows/{f}'))
         assert all(v in ('v4', 'v5') for _, v in uses), uses

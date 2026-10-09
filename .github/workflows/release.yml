@@ -1,8 +1,8 @@
 # Continuous delivery: on a pushed tag v*, run both test jobs (tests.yml), build the sdist and the wheel, write SHA256SUMS
 # and create a GitHub Release with them and the release notes docs/releases/<version>.md (gh CLI, GITHUB_TOKEN).
-# No PyPI publishing (no credential is configured). To add it later: create a PyPI trusted publisher for this repository
-# and workflow, add a job with `permissions: id-token: write` that downloads the `dist` artifact and runs
-# pypa/gh-action-pypi-publish (pinned to a release); no stored token is needed with trusted publishing.
+# Then the `pypi` job uploads the same files to PyPI as `ejai` (import name `ej`) by trusted publishing (OIDC): no stored
+# token. One-time setup on pypi.org: a (pending) trusted publisher for project ejai, owner 5ak3t, repository ej, workflow
+# release.yml, environment pypi.
 name: release
 on:
   push:
@@ -38,6 +38,10 @@ jobs:
         run: |
           (cd dist && sha256sum *) > SHA256SUMS
           cat SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
       - name: Create the GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -49,3 +53,19 @@ jobs:
           else
             gh release create "$GITHUB_REF_NAME" dist/* SHA256SUMS --title "ej ${VERSION}" --notes-file "docs/releases/${VERSION}.md"
           fi
+
+  pypi:
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/project/ejai/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@v1.12.4

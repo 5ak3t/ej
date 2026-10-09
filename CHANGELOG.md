@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.1.post1 (2026-10-09)
+
+Packaging only; the model, its weights (`v0.0.1` on the Hub) and the code paths are those of 0.0.1.
+
+- Published on PyPI as `ejai` (`pip install ejai`; the import name stays `ej`; the name `ej` is taken on PyPI).
+- Dependencies are ranges (tested version as the lower bound, below the next major) instead of exact pins.
+- `release.yml` uploads the release files to PyPI by trusted publishing, and fills in a release created in the web UI.
+
 ## 0.0.1 (2026-10-09)
 
 First public version. Weights: https://huggingface.co/5ak3t/ej, tag `v0.0.1`; the model is one file, `model.ejpack`

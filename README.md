@@ -90,9 +90,11 @@ downloaded from the Hub must also match its file SHA-256 in `ej.integrity.KNOWN_
 
 ## Quickstart
 
-Python >= 3.10 (tested on 3.11.15, CPU). Dependencies are pinned to the tested versions in `pyproject.toml`.
+Python >= 3.10 (tested on 3.11.15, CPU). The lower bounds in `pyproject.toml` are the tested versions.
 
 ```bash
+pip install ejai            # the PyPI name is ejai; the import name is ej.  'ejai[eval]', 'ejai[train]' add the extras
+# from source:
 git clone https://github.com/5ak3t/ej && cd ej
 pip install -e .            # inference;  -e '.[eval]' adds the evaluator, -e '.[train]' the training extras
 ```
