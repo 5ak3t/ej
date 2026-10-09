@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.1.post2 (2026-10-09)
+
+- Fix: `sentencepiece` and `protobuf` are dependencies of the package, not only of the `train` extra; the prediction
+  runtime imports them, so `pip install ejai` (0.0.1.post1) could not load a model without them.
+- CI installs `.[test]` only, so it tests what `pip install ejai` installs.
+
 ## 0.0.1.post1 (2026-10-09)
 
 Packaging only; the model, its weights (`v0.0.1` on the Hub) and the code paths are those of 0.0.1.

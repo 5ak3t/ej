@@ -20,7 +20,7 @@ from .adapt import AdaptedModel
 from .scope import DEFAULT_THREADS
 from .records import EXAMPLE_RECORD, NOUL_OPTIONS, RecordError, validate_record, validate_records
 
-__version__ = '0.0.1.post1'
+__version__ = '0.0.1.post2'
 __all__ = ['load', 'Model', 'AdaptedModel', 'EXAMPLE_RECORD', 'NOUL_OPTIONS', 'RecordError', 'validate_record', 'validate_records',
            '__version__']
 
