@@ -7,7 +7,7 @@ Rules for contributors and coding agents working in this repository.
 ```bash
 python scripts/check_file_length.py          # every tracked text file <= 300 lines (licence texts excepted)
 python -m pytest -q -rs                       # tests without weights (what CI runs)
-EJ_WEIGHTS=/path/to/model.ejpack python -m pytest -q -rs   # plus the prediction tests
+EJ_WEIGHTS=/path/to/model.ejpack python -m pytest -q -rs   # plus the prediction tests (CI job `weights`)
 python -m ej.train --help; python -m ej.eval --help
 ```
 

@@ -1,26 +1,28 @@
 # ej model card (0.0.1)
 
-> **Weights: not yet published** (no hosting has been decided yet). The model is one file, `model.ejpack` (11,384,312
-> bytes); `ej.load` needs a local copy of it. `python -m ej.train fit` and `python -m ej.train export` build one from a
-> training pool. Release notes: `docs/releases/0.0.1.md`.
+ej 0.0.1 is a small calibrated decision model; technical report forthcoming.
+
+> **Weights:** https://huggingface.co/5ak3t/ej, revision `v0.0.1`, one file `model.ejpack` (11,384,312 bytes, SHA-256
+> `e990e1846cba43f8405a969c606057f2fd6e2076595f4a34d202e8fc531891b0`). Code, training and evaluation:
+> https://github.com/5ak3t/ej (file paths below refer to that repository). Release notes: `docs/releases/0.0.1.md`.
 
 | Field | Value |
 |---|---|
 | Model | ej 0.0.1 (2026-10-08); the default fit seed, fixed before fitting, not a selected seed |
 | State key | `3b3e66d28fb423f98b734bd0c1d324cdc92bb8e10eda0e7ddf9a8e54de3f3fe2` (recorded in the pack header; reproduced by `scripts/state_key.py --git <model-code repo> f46cf7c <training pool> --ck-dir lowbit-b3b010513f948ceb`) |
-| Code | runtime: `ej/_runtime` of this repository (39 sha256-pinned modules; `ej.integrity.RELEASE_PROVENANCE`); fitted with model-code commit `f46cf7c` of the maintainers' development repository (not public) with the encoder switch set to `lowbit-b3b010513f948ceb`; the same recipe is `python -m ej.train` |
-| Size | counted 10.87 MiB (11.40 MB; bit-level bound: encoder codes + vocabulary + int8 heads); on disk 11.4 MB: one file `model.ejpack` of 11,384,312 bytes (ejpack v1: 2/3-bit encoder codes and their fp16 steps / offsets 8.17 MB, int8 heads and cross weights 1.62 MB, hashed cross keys 1.27 MB, other tensors and skeleton 0.26 MB, tokenizer and encoder config 0.04 MB), the whole download (no base model is fetched); resident: peak live model tensors while predicting 128 MB by default (encoder dequantised to fp32 at load), 35 MB with `low_memory=True` (encoder kept at 2/3 bits, each weight dequantised when used); process RSS during predict about 558 / 455 MB, of which about 204 MB is `import torch` (README "Memory and latency") |
+| Code | runtime: `ej/_runtime` of the GitHub repository (39 sha256-pinned modules; `ej.integrity.RELEASE_PROVENANCE`); fitted with model-code commit `f46cf7c` of the maintainers' development repository (not public) and encoder checkpoint `lowbit-b3b010513f948ceb`; the same recipe is `python -m ej.train` |
+| Size | counted 10.87 MiB (11.40 MB; a bit-level bound on the stored parameters); on disk 11.4 MB: one file `model.ejpack` of 11,384,312 bytes, the whole download (no base model is fetched); resident: peak live model tensors while predicting 128 MB by default, 35 MB with `low_memory=True`; process RSS during predict about 558 / 455 MB, of which about 204 MB is `import torch` (README "Memory and latency") |
 | Latency (CPU, Python reference, 1 thread, one record per call) | packed model, first 50 td development records, warm: 214 ms per record (317 ms with `low_memory=True`); cold 1,061 / 1,385 ms (2026-10-09, Intel Xeon @ 2.80GHz, 4 logical cores, contended). Benchmark protocol on the td development suite (weights-directory format, 2026-10-08): warm 356.6 ms mean / 363.1 ms median, cold 1,922.0 / 1,413.7 ms. The two measurements are not comparable (README "Latency") |
 | Language | English only (§6) |
 | Licence | weights **CC BY-SA 4.0**; code Apache-2.0 |
 | Base model | `intfloat/e5-small-v2` (MIT), revision `ffb93f3bd4047442299a41ebb6fa998a38507c52` |
-| Weights / code | not yet published / https://github.com/5ak3t/ej |
+| Weights / code | https://huggingface.co/5ak3t/ej (revision `v0.0.1`, file `model.ejpack`) / https://github.com/5ak3t/ej |
 
 ## 1. What the model does
 
 A **System-1 decision model for devices**: given a `state` (text, or a JSON object as text) and typed questions, it returns
-one probability distribution per question in **one pass of a small encoder plus small heads**, without decoding tokens.
-Usage: the repository README.
+one probability distribution per question in **one pass**, without decoding tokens. Usage: Quickstart below and the
+repository README.
 
 | Question type | Input | Output |
 |---|---|---|
@@ -29,58 +31,32 @@ Usage: the repository README.
 | `score` | instructions + an ordered list of level texts | a distribution over the levels |
 
 - **No LLM at inference**; teachers are used at fit time only and their weights do not ship.
-- **Calibration is fitted, then checked per suite**: a log-linear pool with per-cell calibration and a lapse term; whether
-  the result is calibrated is measured on each suite against a perfect-calibration ECE floor (§5).
+- **Calibration is fitted, then checked per suite**: whether the result is calibrated is measured on each suite against a
+  perfect-calibration ECE floor (§5).
 - **Record independence.** Zero-shot `predict` is record-independent: each record's output depends only on that record (up
   to the float noise of batching). `adapt` (and `AdaptedModel.observe`) is an opt-in, per-workflow transductive mode: it
   pools option statistics across that workflow's labelled records, so use it only for one workflow with a fixed option set
   (the same question ids and option keys).
 - Option texts are read as text, so new label spaces can be asked zero-shot; quality on unseen workflows is limited (§6).
 
-## 2. Architecture
+## 2. Quickstart
 
-A later set of architecture changes (no NLI slot, one signed and bounded bias weight, a pre-registered new-group
-predictive) was evaluated as a candidate and **failed** its pre-registered release rule, so it is not part of this release
-and its code is not in this repository; the weaknesses it addressed still apply here and are stated below. Module-level
-detail: `docs/architecture.md`.
+Architecture and method: technical report forthcoming.
 
-**2.1 Low-bit shared encoder (the only transformer on the device).** Base `intfloat/e5-small-v2`, mean pooling,
-`query:` / `passage:` prefixes. Trimmed vocabulary chosen a priori (a dropped piece is re-split, never `[UNK]`). **2-bit**
-embeddings and feed-forward matrices, **3-bit attention**, groups of 128 input columns with fp16 step and offset; GPTQ
-initialisation, then quantisation-aware distillation to a 4-bit e5. Encoder checkpoint: `lowbit-b3b010513f948ceb`
-(distilled on the 20,932 distinct training-pool texts; fidelity: pooled cosine to the 4-bit e5 .992 on held-out pool texts; fixed and
-recorded before fitting). The state is encoded **once** per record; JSON fields are read by key-aware attention.
+```bash
+git clone https://github.com/5ak3t/ej && cd ej
+pip install -e .
+```
 
-**2.2 Expert pool, int8 heads.** 11 expert slots: a deep convex conditional logit over label-agnostic features (zero-shot
-capable), wide sparse state-token × option-slot crosses, a rich bilinear/ordinal/MLP scorer, a centred prior-free expert,
-field attention, relational evidence over JSON cross-field relations, a slot-free relational reader, a distilled
-decision-encoder scorer, a distilled NLI pair head, and a product-of-experts pair (§2.3). The NLI pair head is silent
-(exactly 0) on JSON states (measured with this code). Every head is fitted on the low-bit encoder's features and compacted to
-**int8** (per-row int8 matrices; int8 cross weights with 40-bit hashed keys).
+```python
+import ej
 
-**2.3 Option-text bias expert.** A **bias-only expert** reads the question and the option texts but not the state; the main
-deep expert is trained as a product of experts with the frozen bias logits as an offset (Clark et al. 2019; He et al.
-2019), and the bias enters the pool as a pair `[z_b, −z_b]` with two non-negative weights, i.e. one signed coefficient. The
-coefficient is not bounded, so in unseen cells the option-text prior can be divided out more than once.
-Whether the debiasing helps on a new workflow is a per-suite question, reported against state-free baselines (always the
-option with the lowest / highest bias logit): on the development suites (micro accuracy per cell of question type ×
-structured state) ej 0.0.1 beats both baselines in all 3 td cells, in 2 of 3 zs_td cells (noul: lowest-bias baseline .622,
-model .573) and in 2 of 4 zs_wide cells (JSON noul: highest-bias baseline .590, model .482; JSON score: .308 vs .249); no
-transfer claim is made where the model does not beat both.
+model = ej.load('5ak3t/ej', revision='v0.0.1')   # downloads model.ejpack only, checks its sha256, nothing else is fetched
+(probs,) = model.predict([ej.EXAMPLE_RECORD])    # {qid: [p for each option, in option order]}
+```
 
-**2.4 Teachers (fit time only; nothing ships).** A decision encoder (e5 layers 10-12 fine-tuned on the training pool)
-distilled from its out-of-fold distributions, and the NLI cross-encoder `cross-encoder/nli-deberta-v3-xsmall` (Apache-2.0)
-distilled into the NLI pair head. No large teacher is used.
-
-**2.5 Group-honest stacking.**
-- Log-linear pool with lapse per calibration cell (question type × seen/unseen option slots × structured state):
-  `p = (1 - eps) softmax(sum_e a_e z_e) + eps / K`; a selective correctness head is adopted per regime only where it beats
-  the pool.
-- **Group-honest nested cross-fitting**: rows for a held-out group come only from models and teachers that never saw it.
-- **New-group predictive, chosen in fit.** For each regime of the unseen-slot pool (plain text, JSON) one of four
-  predictives is chosen by a leave-one-group-out check over the training groups; ej 0.0.1 chose 'groups' (plain text, 4
-  groups) and 'mean' (JSON, 3 groups). With so few groups that choice is weakly supported, and the hierarchy's scales sit at
-  the edge of their grid, so the hierarchy acts as a plug-in estimate, not a fitted hierarchy.
+`ej.load` also takes a local `model.ejpack` (or a directory holding it). `python examples/quickstart.py --weights 5ak3t/ej
+--revision v0.0.1` prints the distributions for `ej.EXAMPLE_RECORD`. Input and output format: the repository README.
 
 ## 3. Training data
 
@@ -160,7 +136,7 @@ calibration, latency or size ranking is claimed.
   your own. A few labelled records help mainly by teaching the label prior (`docs/adaptation.md`).
 - **Fit-to-fit noise.** Two fits of the same code that differ only in their random seed differ by about .03 zs_td micro
   accuracy (SD of a difference); single-fit differences of that size are not evidence (§4).
-- **Option-text tilt** on new workflows is reduced by the bias expert (§2.3) but not removed.
+- **Option-text tilt**: on new workflows the option texts alone still tilt the predictions.
 - **More data did not simply help**: adding broad text and dialogue data made td, tickets and zs_massive worse (zs_td
   unchanged within noise), and synthetic workflow data did not improve unseen-workflow accuracy; neither is in the
   training data.
@@ -170,10 +146,12 @@ calibration, latency or size ranking is claimed.
   threshold had error .771 on zs_wide). Certify on labelled rows of the workflow you automate.
 - **Python runtime only** (torch + transformers, CPU). Latency is the Python reference on a 4-core CPU, not a phone.
 - **Float noise**: batch composition, chunk size and thread count move probabilities by at most about 6e-7 (measured).
-- **No download at load**: the pack holds the tokenizer and the encoder config. A weights directory (the secondary format)
-  instead builds the encoder from the base model, fetched from the Hugging Face Hub at revision `ffb93f3b` on first use.
+- **One download**: `ej.load('5ak3t/ej', revision='v0.0.1')` fetches only `model.ejpack`, which holds the tokenizer and
+  the encoder config; a local pack needs no network. A weights directory (the secondary format) instead fetches the base
+  model from the Hugging Face Hub at revision `ffb93f3b` on first use.
 - **Reproducibility**: a release is tied to its runtime (`ej/_runtime`, sha256 manifest checked at every load); a known
-  pack is checked against its content digest in `ej.integrity.KNOWN_PACKS`.
+  pack is checked against its content digest in `ej.integrity.KNOWN_PACKS` (and, when downloaded, its file sha256 in
+  `ej.integrity.KNOWN_PACK_FILES`).
 
 ## 7. Intended use
 

@@ -82,12 +82,12 @@ def check_runtime_imports():
 
 
 def resolve(path_or_repo, revision=None):
-    """A local path: path_or_repo itself when it is a file (a model.ejpack) or a directory, else a Hugging Face snapshot of that
-    repo id."""
+    """A local path: path_or_repo itself when it is a file (a model.ejpack) or a directory; else a Hugging Face repo id, whose
+    model.ejpack is downloaded and sha256-checked (ej.hub.download; a repo without one is fetched as a snapshot)."""
     if os.path.isdir(path_or_repo) or os.path.isfile(path_or_repo):
         return os.path.abspath(path_or_repo)
-    from huggingface_hub import snapshot_download
-    return snapshot_download(repo_id=path_or_repo, revision=revision)
+    from .hub import download
+    return download(path_or_repo, revision)
 
 
 def read_config(weights_dir):

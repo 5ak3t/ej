@@ -76,7 +76,7 @@ by the same model (blind self-consistency filter only; no independent annotation
 training data, and are reported separately from the real-source workflows.
 **Training-time derivatives.** All derived signals come from pool texts only: out-of-fold decision-encoder distributions,
 NLI teacher labels on an augmented transfer set of pool pairs, the trimmed encoder vocabulary, and a fidelity slice of pool
-texts for the encoder's quantisation-aware distillation (20,932 distinct pool texts). Remote GPU jobs received only pool
+texts for the encoder's distillation (20,932 distinct pool texts). Remote GPU jobs received only pool
 data and pool-derived caches.
 
 ## 7. Known data limitations

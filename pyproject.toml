@@ -28,7 +28,7 @@ dependencies = [
 [project.optional-dependencies]
 eval = ["scipy==1.17.1"]
 train = ["scipy==1.17.1", "sentencepiece==0.2.2", "protobuf==7.36.2"]
-test = ["pytest>=8", "scipy==1.17.1"]
+test = ["pytest>=8", "scipy==1.17.1", "pyyaml==6.0.3"]
 
 [project.urls]
 Homepage = "https://github.com/5ak3t/ej"

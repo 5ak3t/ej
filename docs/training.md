@@ -4,6 +4,8 @@
 `python -m ej.train export` turns into the packed model file `model.ejpack`; `ej.load` reads either. It runs the released ej 0.0.1 recipe: the fit code is `ej/_runtime/student.py` with its flags unchanged; `ej.train`
 only prepares the work directory, the teachers and the encoder, and exports the result pickle-free.
 
+Architecture and method: technical report forthcoming.
+
 ```bash
 pip install -e '.[train]'
 python -m ej.train fit --pool pool.jsonl --out my-weights          # every step; work directory my-weights.work
@@ -59,15 +61,15 @@ finished step is never repeated and an interrupted run resumes. `fit` trains wha
 
 | Command | Produces (under `<work>/ckpt/`) | Device |
 |---|---|---|
-| `python -m ej.train encoder --pool P --work W` | low-bit encoder `lowbit-<key>/w23.pt` (`ej.train.lowbit`: GPTQ init, then quantisation-aware distillation to the 4-bit e5, 30 epochs) | GPU strongly recommended (`EJ_DEVICE`) |
-| `python -m ej.train teachers --pool P --work W` | decision-encoder teachers: full model + one per group fold (`train_merge`), and one per fold pair (`ej.train.hcf`) | CPU |
-| `python -m ej.train distil --pool P --work W` | distilled NLI pair heads `dn-*.pt` (teacher `cross-encoder/nli-deberta-v3-xsmall`) and distilled decision encoder `dd-*.pt` | CPU |
+| `python -m ej.train encoder --pool P --work W` | the encoder checkpoint `lowbit-<key>/w23.pt` (`ej.train.lowbit`) | GPU strongly recommended (`EJ_DEVICE`) |
+| `python -m ej.train teachers --pool P --work W` | the teachers: full model + one per group fold (`train_merge`), and one per fold pair (`ej.train.hcf`) | CPU |
+| `python -m ej.train distil --pool P --work W` | distilled checkpoints `dn-*.pt` and `dd-*.pt` (downloads `cross-encoder/nli-deberta-v3-xsmall`) | CPU |
 | `python -m ej.train fit --pool P --work W --out OUT` | the fitted state, written to `OUT` (`state.*`, `encoder/w23.*`, `config.json`) | CPU |
 
 `--parts` runs single teachers (`full`, `fold0`..`fold3`, `p01`..`p23`), so they can run in parallel processes on one work
 directory. Environment: `EJ_DEVICE=cuda|cpu`, `EJ_THREADS` (torch threads, default 2), `EJ_CACHE` (encoder cache; default
 `<work>/cache`), `HF_HOME` (base models: `intfloat/e5-small-v2`, and for the teacher `cross-encoder/nli-deberta-v3-xsmall`).
-Compute, for scale: the decision-encoder teachers take about an hour of CPU in total, and a fit of this code with every
+Compute, for scale: the teachers take about an hour of CPU in total, and a fit of this code with every
 checkpoint present took about 46 minutes on a 4-core CPU for a pool of about 12,700 records (2,785.7 s, recorded in the
 fitted state's metadata).
 
@@ -79,14 +81,14 @@ version, every runtime `student*` / `train_*` module, every `ej.train` module an
 (`ej.train.export.state_key`): a new pool or a code change gives a new key. The training checkpoints under `<work>` are
 pickles written by this training; only the exported weights directory is pickle-free. Never commit the work directory.
 
-`python -m ej.train export --weights OUT --out model.ejpack` writes the packed model file, the default format of `ej.load`
-(`docs/architecture.md`, "Weights format"): one file, pickle-free on both sides, with the trimmed tokenizer and the encoder
+`python -m ej.train export --weights OUT --out model.ejpack` writes the packed model file, the default format of `ej.load`:
+one file, pickle-free on both sides, with the trimmed tokenizer and the encoder
 config inside, so loading it downloads nothing. The export reads the base tokenizer and config once (no weights); exporting
 the 0.0.1 weights directory reproduces the release pack's content digest (`tests/test_pack_weights.py`).
 
-`python scripts/hf_layout.py UPLOAD_DIR --from-safe OUT` builds a Hugging Face directory of the weights-directory format
-(model card, NOTICE, licences, `SHA256SUMS`, and `code_commit` = a clean, pushed commit of this repository). It never
-uploads; where the 0.0.1 weights will be hosted is not decided.
+`python scripts/hf_layout.py UPLOAD_DIR --pack model.ejpack` builds a Hugging Face upload directory for a pack (the file,
+the model card with Hub metadata, NOTICE, licences, `SHA256SUMS`); `--from-safe OUT` does the same for a weights directory.
+It never uploads. The 0.0.1 release lives at https://huggingface.co/5ak3t/ej (revision `v0.0.1`).
 
 ## Comparing recipes
 

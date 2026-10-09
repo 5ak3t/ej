@@ -12,7 +12,7 @@ import ej
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CARD = 'docs/model-cards/ej-0.0.1.md'
 DOCS = ['README.md', 'BENCHMARKS.md', 'CHANGELOG.md', 'AGENTS.md', 'NOTICE', CARD, 'docs/data-card.md', 'docs/releases/0.0.1.md',
-        'docs/architecture.md', 'docs/training.md', 'docs/adaptation.md', 'benchmarks/README.md', 'benchmarks/METHOD.md',
+        'docs/training.md', 'docs/adaptation.md', 'benchmarks/README.md', 'benchmarks/METHOD.md',
         'benchmarks/results/README.md', 'benchmarks/suites/README.md']
 
 
@@ -26,14 +26,36 @@ def flat(rel):
     return re.sub(r'\s+', ' ', read(rel))
 
 
-def test_versions_agree_and_no_quickstart_needs_unpublished_weights():
+HF_REPO = 'https://huggingface.co/5ak3t/ej'
+PACK_SHA256 = 'e990e1846cba43f8405a969c606057f2fd6e2076595f4a34d202e8fc531891b0'
+ARCH_LINE = 'Architecture and method: technical report forthcoming.'
+
+
+def test_versions_agree_and_weights_point_to_the_hub():
     version = re.search(r'^version = "([^"]+)"', read('pyproject.toml'), re.M).group(1)
     assert version == ej.__version__ == '0.0.1'
     readme = read('README.md')
     assert f'version = {{{version}}}' in readme and '## 0.0.1' in read('CHANGELOG.md')
-    assert 'not yet published' in readme and 'not yet published' in flat(CARD)
-    assert not re.search(r"ej\.load\(\s*['\"][\w.-]+/[\w.-]+['\"]", readme), 'README loads a hub repo id'
-    assert 'huggingface.co/5ak3t' not in readme + read('pyproject.toml') + read('examples/quickstart.py')
+    for rel in DOCS + ['examples/quickstart.py', 'benchmarks/rivals/ej_adapter.py']:
+        assert 'not yet published' not in flat(rel).lower() and 'no hosting' not in flat(rel).lower(), rel
+    for rel in ('README.md', CARD, 'docs/releases/0.0.1.md'):
+        t = flat(rel)
+        assert HF_REPO in t and 'v0.0.1' in t and PACK_SHA256 in t and 'model.ejpack' in t, rel
+    for rel in ('README.md', CARD):
+        assert re.search(r"""ej\.load\(['"]5ak3t/ej['"], revision=['"]v0\.0\.1['"]\)""", read(rel)), rel
+    from ej import integrity
+    assert integrity.KNOWN_PACK_FILES['3b3e66d28fb423f9'] == PACK_SHA256
+    notes = flat('docs/releases/0.0.1.md')
+    assert re.search(r'tag `v0\.0\.1` = Hub commit `[0-9a-f]{40}`', notes), 'release notes name the Hub commit of the tag'
+
+
+def test_architecture_lives_in_the_technical_report():
+    assert not os.path.exists(os.path.join(ROOT, 'docs', 'architecture.md'))
+    for rel in ('README.md', CARD, 'docs/training.md', 'BENCHMARKS.md', 'docs/releases/0.0.1.md'):
+        t = flat(rel)
+        assert ARCH_LINE in t, rel
+        for word in ('GPTQ', 'expert', 'int8', '2/3-bit', '2-bit', '3-bit', 'log-linear', 'lapse', 'docs/architecture.md'):
+            assert word not in t, (rel, word)
 
 
 @pytest.mark.parametrize('rel', DOCS)
@@ -137,13 +159,27 @@ def test_suite_checksums_and_builders():
         compile(read(f'benchmarks/suites/{f}'), f, 'exec')
 
 
-def test_ci_runs_tests_without_deploying():
-    wf = read('.github/workflows/tests.yml')
-    on = wf[wf.index('\non:'):wf.index('\npermissions:')]
-    assert 'pull_request' in on and 'workflow_dispatch' in on and 'push' not in on and 'schedule' not in on
-    assert 'contents: read' in wf and 'pytest' in wf
-    for word in ('deploy', 'secrets.', 'upload', 'publish', 'twine', 'huggingface-cli'):
-        assert word not in wf.replace('no deployment', ''), word
+def test_ci_tests_and_release_workflows():
+    import yaml
+    tests = yaml.safe_load(read('.github/workflows/tests.yml'))
+    on = tests[True]  # YAML 1.1 reads the key `on` as True
+    assert on['push'] == {'branches': ['main']} and 'pull_request' in on and 'workflow_dispatch' in on
+    assert tests['permissions'] == {'contents': 'read'} and set(tests['jobs']) == {'lint-and-unit', 'weights'}
+    assert tests['env']['EJ_HF_REPO'] == '5ak3t/ej' and tests['env']['EJ_HF_REVISION'] == 'v0.0.1'
+    assert tests['env']['EJ_PACK_SHA256'] == PACK_SHA256
+    text = read('.github/workflows/tests.yml')
+    assert 'secrets.' not in text and 'download.pytorch.org/whl/cpu' in text and 'torch==2.5.1' in text
+    assert 'sha256sum -c' in text and text.count('pytest') >= 2 and 'EJ_WEIGHTS' in text
+    rel = yaml.safe_load(read('.github/workflows/release.yml'))
+    assert rel[True] == {'push': {'tags': ['v*']}} and rel['jobs']['tests']['uses'] == './.github/workflows/tests.yml'
+    assert rel['jobs']['release']['needs'] == 'tests' and rel['jobs']['release']['permissions'] == {'contents': 'write'}
+    text = read('.github/workflows/release.yml')
+    assert 'python -m build' in text and 'gh release create "$GITHUB_REF_NAME" dist/* SHA256SUMS' in text
+    for word in ('secrets.', 'twine upload', 'pypi-publish@'):
+        assert word not in text, word
+    for f in ('tests.yml', 'release.yml'):
+        uses = re.findall(r'uses: (actions/[\w-]+)@(\S+)', read(f'.github/workflows/{f}'))
+        assert all(v in ('v4', 'v5') for _, v in uses), uses
 
 
 def test_documents_link_to_existing_files():

@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """Build the Hugging Face upload directory for ej weights. Builds files only: it never uploads anything.
 
-usage: python scripts/hf_layout.py OUT_DIR --from-safe DIR [--model-commit SHA] [--remote origin]
+usage: python scripts/hf_layout.py OUT_DIR --pack model.ejpack
+       python scripts/hf_layout.py OUT_DIR --from-safe DIR [--model-commit SHA] [--remote origin]
+  --pack FILE       a packed model file (the default format; python -m ej.train export). OUT_DIR receives model.ejpack, the
+                    model card README.md with Hugging Face YAML front matter, NOTICE, LICENSES/* and SHA256SUMS. A pack of a
+                    known state must match ej.integrity (KNOWN_PACKS content digest and KNOWN_PACK_FILES file sha256).
   --from-safe DIR   an ej weights directory (`python -m ej.train fit` output: state.*, encoder/w23.*, config.json), or an
                     export directory holding state-<key16>.json + .safetensors and lowbit-<id>/w23.json + .safetensors
   --model-commit    for weights fitted outside this repository: the model-code commit whose student*/train_* files + pool
                     reproduce the state key (scripts/state_key.py); recorded as `model_commit`
 Provenance: config.json `code_commit` is this repository's HEAD, which must be clean AND contained in a branch
 of the remote (`git ls-remote`), so the named commit can be fetched by anyone; otherwise the build refuses.
-OUT_DIR must be new or empty and must not be inside a git work tree (weights never go into git). It receives:
+OUT_DIR must be new or empty and must not be inside a git work tree (weights never go into git). With --from-safe it receives:
   state.safetensors, state.json.gz, encoder/w23.safetensors, encoder/w23.json   (the weights; no pickle)
   config.json   ej version, code commit, runtime sha256, e5 model + revision, state key, sha256 of every weights file
   README.md     the model card (--card, default docs/model-cards/ej-0.0.1.md) with Hugging Face YAML front matter
@@ -27,7 +31,7 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
-from ej import integrity, loader, safe  # noqa: E402
+from ej import hub, integrity, loader, safe  # noqa: E402
 
 FRONT_MATTER = """---
 license: cc-by-sa-4.0
@@ -37,10 +41,10 @@ language:
 - en
 pipeline_tag: text-classification
 tags:
-- typed-decisions
+- text-classification
+- zero-shot-classification
 - calibration
-- on-device
-- safetensors
+- typed-decisions
 ---
 
 """
@@ -139,11 +143,44 @@ def place(state_prefix, w23_prefix, out):
     return key, sk
 
 
+def add_docs(out, card_path):
+    """Write README.md (front matter + model card), NOTICE, LICENSES/* and SHA256SUMS (every other file); returns the files."""
+    with open(card_path) as f:
+        card = f.read()
+    with open(os.path.join(out, 'README.md'), 'w') as f:
+        f.write(FRONT_MATTER + card)
+    shutil.copyfile(os.path.join(ROOT, 'NOTICE'), os.path.join(out, 'NOTICE'))
+    shutil.copytree(os.path.join(ROOT, 'LICENSES'), os.path.join(out, 'LICENSES'))
+    files = sorted(os.path.relpath(os.path.join(d, n), out) for d, _, ns in os.walk(out) for n in ns)
+    with open(os.path.join(out, 'SHA256SUMS'), 'w') as f:
+        for rel in files:
+            f.write(f'{integrity.file_sha256(os.path.join(out, rel))}  {rel}\n')
+    return files
+
+
+def pack_layout(pack, out, card_path):
+    """The upload directory of a packed model file (see the module docstring)."""
+    from ej.pack import container as C
+    r = C.Reader(pack)  # header digest and every section's sha256
+    key, digest = str(r.meta.get('state_key', ''))[:16], r.digest
+    r.close()
+    if key in integrity.KNOWN_PACKS and integrity.KNOWN_PACKS[key] != digest:
+        sys.exit(f'hf_layout: {pack}: content digest {digest} != ej.integrity.KNOWN_PACKS[{key}]; refusing')
+    sha = hub.check_pack_file(pack)
+    os.makedirs(out, exist_ok=True)
+    shutil.copyfile(pack, os.path.join(out, hub.PACK_FILE))
+    files = add_docs(out, card_path)
+    print(f'hf_layout: {out}: {len(files) + 1} files, state {key}; nothing was uploaded')
+    print(f'  {sha}  {hub.PACK_FILE}  ({os.path.getsize(pack)} bytes)')
+
+
 def main():
     """CLI entry point (see the module docstring)."""
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('out')
-    ap.add_argument('--from-safe', required=True)
+    src = ap.add_mutually_exclusive_group(required=True)
+    src.add_argument('--from-safe')
+    src.add_argument('--pack')
     ap.add_argument('--card', default=os.path.join(ROOT, 'docs', 'model-cards', 'ej-0.0.1.md'))
     ap.add_argument('--model-commit')
     ap.add_argument('--remote', default='origin')
@@ -153,6 +190,8 @@ def main():
         sys.exit(f'hf_layout: {out} is inside a git work tree; refusing (weights never go into git)')
     if os.path.exists(out) and os.listdir(out):
         sys.exit(f'hf_layout: {out} is not empty; refusing')
+    if a.pack:
+        return pack_layout(a.pack, out, a.card)
     commit, where = pushed_commit(ROOT, a.remote)
     if commit is None:
         sys.exit(f'hf_layout: code_commit not reachable: {where}; refusing')
@@ -170,16 +209,7 @@ def main():
     with open(os.path.join(out, 'config.json'), 'w') as f:
         json.dump(cfg, f, indent=1)
         f.write('\n')
-    with open(a.card) as f:
-        card = f.read()
-    with open(os.path.join(out, 'README.md'), 'w') as f:
-        f.write(FRONT_MATTER + card)
-    shutil.copyfile(os.path.join(ROOT, 'NOTICE'), os.path.join(out, 'NOTICE'))
-    shutil.copytree(os.path.join(ROOT, 'LICENSES'), os.path.join(out, 'LICENSES'))
-    files = sorted(os.path.relpath(os.path.join(d, n), out) for d, _, ns in os.walk(out) for n in ns)
-    with open(os.path.join(out, 'SHA256SUMS'), 'w') as f:
-        for rel in files:
-            f.write(f'{integrity.file_sha256(os.path.join(out, rel))}  {rel}\n')
+    files = add_docs(out, a.card)
     print(f'hf_layout: {out}: {len(files) + 1} files, state {key[:16]}, runtime {cfg["runtime_sha256"][:16]}; '
           'nothing was uploaded')
     for rel in weights:

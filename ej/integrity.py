@@ -23,7 +23,12 @@ KNOWN_RELEASES = {
 # (ej.pack.container.content_digest: every section's sha256 and length plus the header meta except 'source'). A pack whose
 # state key is listed here must match it; a pack not listed loads with a warning (sections checked against its own header).
 KNOWN_PACKS = {
-    '3b3e66d28fb423f9': '68459de15b060169ce05ca4ed76304a40a112ba1e2e45d3e7ee2c48c35a15c8a',  # ej 0.0.1 (file sha256 e990e184...)
+    '3b3e66d28fb423f9': '68459de15b060169ce05ca4ed76304a40a112ba1e2e45d3e7ee2c48c35a15c8a',  # ej 0.0.1
+}
+# sha256 of the published model.ejpack file of each known state (checked by ej.hub before a downloaded pack is used; the content
+# digest above is checked for every pack). ej 0.0.1: https://huggingface.co/5ak3t/ej, revision v0.0.1.
+KNOWN_PACK_FILES = {
+    '3b3e66d28fb423f9': 'e990e1846cba43f8405a969c606057f2fd6e2076595f4a34d202e8fc531891b0',  # ej 0.0.1
 }
 # Where each known state comes from: the training pool (sha256), the low-bit encoder, and the model-code commit of the
 # maintainers' development repository (not public) whose student*/train_* files and pool reproduce the state key

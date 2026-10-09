@@ -5,18 +5,21 @@ generating tokens.
 
 <p>
   <a href="https://github.com/5ak3t/ej/actions/workflows/tests.yml"><img alt="tests" src="https://img.shields.io/github/actions/workflow/status/5ak3t/ej/tests.yml?style=for-the-badge&labelColor=000000&label=tests" height="28"></a>
-  <img alt="Weights: not yet published" src="https://img.shields.io/badge/WEIGHTS-not%20yet%20published-0a0a0a.svg?style=for-the-badge&labelColor=000000" height="28">
+  <a href="https://huggingface.co/5ak3t/ej/tree/v0.0.1"><img alt="Weights: Hugging Face 5ak3t/ej v0.0.1" src="https://img.shields.io/badge/WEIGHTS-5ak3t%2Fej%20v0.0.1-0a0a0a.svg?style=for-the-badge&labelColor=000000&logo=huggingface" height="28"></a>
   <a href="LICENSE"><img alt="Code: Apache-2.0" src="https://img.shields.io/badge/code-Apache--2.0-0a0a0a.svg?style=for-the-badge&labelColor=000000" height="28"></a>
   <a href="LICENSES/CC-BY-SA-4.0.txt"><img alt="Weights: CC BY-SA 4.0" src="https://img.shields.io/badge/weights-CC%20BY--SA%204.0-0a0a0a.svg?style=for-the-badge&labelColor=000000" height="28"></a>
 </p>
 
 You give ej a `state` (free text, or a JSON object as text) and a set of typed questions; it returns one probability
-distribution per question. There is no LLM at inference: a 2/3-bit `intfloat/e5-small-v2` encoder reads the record once and
-small int8 heads score the options. This repository holds the package, the training and evaluation code, and the benchmark.
+distribution per question. There is no LLM at inference. This repository holds the package, the training and evaluation
+code, and the benchmark; the weights are on the Hugging Face Hub.
 
-> **Status (2026-10-09): ej 0.0.1. Weights: not yet published** (no hosting has been decided yet). The model is one file,
-> `model.ejpack` (11,384,312 bytes); `ej.load` needs a local copy of it, or a pack you build yourself (`python -m ej.train
-> fit`, then `python -m ej.train export`). Every number below was measured with the 0.0.1 weights.
+Architecture and method: technical report forthcoming.
+
+> **Status (2026-10-09): ej 0.0.1. Weights: [huggingface.co/5ak3t/ej](https://huggingface.co/5ak3t/ej/tree/v0.0.1)**,
+> revision `v0.0.1`, one file `model.ejpack` (11,384,312 bytes, SHA-256 `e990e1846cba43f8…`, full value under
+> [Release](#release)). `ej.load("5ak3t/ej", revision="v0.0.1")` fetches it. Every number below was measured with these
+> weights.
 
 ## Highlights
 
@@ -25,10 +28,10 @@ small int8 heads score the options. This repository holds the package, the train
 - Calibration is fitted, then **measured per suite** against the ECE a perfectly calibrated model would show there.
 - Small: one model file of 11,384,312 bytes (11.4 MB; 10.87 MiB counted at the bit level) and nothing else to download: the
   tokenizer and the encoder config are inside it, no base model is fetched. CPU only, deterministic for a fixed thread count.
-- Pickle-free weights: `model.ejpack` (ejpack v1) is a JSON header plus binary sections (2/3-bit encoder codes, int8 heads,
-  hashed vocabularies, tokenizer), each sha256-checked before anything is decoded; classes come from an allowlist.
-- `ej.load(path, low_memory=True)` keeps the encoder at 2/3 bits in memory and dequantises each weight when it is used:
-  identical predictions, lower peak memory, slower ([Memory and latency](#memory-and-latency-of-the-packed-model)).
+- Pickle-free weights: `model.ejpack` (ejpack v1) is checked section by section (sha256) before anything is decoded;
+  classes come from an allowlist.
+- `ej.load(path, low_memory=True)` keeps the weights compressed in memory: identical predictions, lower peak memory,
+  slower ([Memory and latency](#memory-and-latency-of-the-packed-model)).
 - Few-shot adaptation to your workflow from a handful of labelled records (`model.adapt`, `AdaptedModel.observe`).
 - Train your own from a pool of labelled records (`python -m ej.train`) and evaluate it with the same evaluator that
   produced every number below (`python -m ej.eval`).
@@ -43,11 +46,11 @@ small int8 heads score the options. This repository holds the package, the train
 
 | Model | Base (licence) | Size: counted / on disk / resident | CPU latency, 1 thread, one record per call (td) | Unseen workflows: macro_real accuracy | Card |
 |---|---|---|---|---|---|
-| ej 0.0.1 | `intfloat/e5-small-v2` (MIT), 2-bit weights, 3-bit attention | 10.87 MiB / 11.4 MB / 128 MB (35 MB with `low_memory=True`) | warm 214 ms (317 ms with `low_memory=True`) | .419 [.379, .458] | [ej-0.0.1](docs/model-cards/ej-0.0.1.md) |
+| ej 0.0.1 | `intfloat/e5-small-v2` (MIT) | 10.87 MiB / 11.4 MB / 128 MB (35 MB with `low_memory=True`) | warm 214 ms (317 ms with `low_memory=True`) | .419 [.379, .458] | [ej-0.0.1](docs/model-cards/ej-0.0.1.md) |
 
-Sizes: *counted* = a bit-level bound (encoder codes + vocabulary + int8 heads); *on disk* = the one file `model.ejpack`
-(11,384,312 bytes), which is the whole download (no base model is fetched); *resident* = peak live model tensors while
-predicting (default: the encoder is dequantised to fp32 at load; `low_memory=True`: it stays at 2/3 bits). Process memory
+Sizes: *counted* = a bit-level bound on the stored parameters; *on disk* = the one file `model.ejpack` (11,384,312 bytes),
+which is the whole download (no base model is fetched); *resident* = peak live model tensors while predicting (default, and
+with `low_memory=True`). Process memory
 and the box: [Memory and latency](#memory-and-latency-of-the-packed-model); benchmark latency: [Latency](#latency).
 
 ## Results
@@ -78,11 +81,12 @@ No latency, size or calibration ranking is claimed.
 
 | Version | State key | Weights | Notes |
 |---|---|---|---|
-| ej 0.0.1 | `3b3e66d28fb423f9` | not yet published (no hosting decided); one file `model.ejpack`, 11,384,312 bytes | [docs/releases/0.0.1.md](docs/releases/0.0.1.md) |
+| ej 0.0.1 | `3b3e66d28fb423f9` | [huggingface.co/5ak3t/ej](https://huggingface.co/5ak3t/ej/tree/v0.0.1), revision `v0.0.1`: one file `model.ejpack`, 11,384,312 bytes | [docs/releases/0.0.1.md](docs/releases/0.0.1.md) |
 
 Before decoding anything, `ej.load` checks the pack's header digest and every section's sha256, the contents of a known
-release against the digest shipped in `ej.integrity.KNOWN_PACKS`, and the runtime modules against their manifest. The
-file's SHA-256 is in the release notes.
+release against the digest shipped in `ej.integrity.KNOWN_PACKS`, and the runtime modules against their manifest; a pack
+downloaded from the Hub must also match its file SHA-256 in `ej.integrity.KNOWN_PACK_FILES`:
+`e990e1846cba43f8405a969c606057f2fd6e2076595f4a34d202e8fc531891b0`.
 
 ## Quickstart
 
@@ -93,13 +97,14 @@ git clone https://github.com/5ak3t/ej && cd ej
 pip install -e .            # inference;  -e '.[eval]' adds the evaluator, -e '.[train]' the training extras
 ```
 
-You need an ej model file: the 0.0.1 `model.ejpack` once it is published, or one you build (`python -m ej.train fit`,
-then `python -m ej.train export`; below). The example runs on any such file.
+`ej.load('5ak3t/ej', revision='v0.0.1')` downloads the published `model.ejpack` (only that file, into the Hugging Face
+cache) and checks its SHA-256. A local `model.ejpack`, or one you build (`python -m ej.train fit`, then `python -m ej.train
+export`; below), loads the same way from its path.
 
 ```python
 import ej
 
-model = ej.load('/path/to/model.ejpack')   # one local file (or a directory holding model.ejpack)
+model = ej.load('5ak3t/ej', revision='v0.0.1')   # or a local path: ej.load('model.ejpack')
 record = {
     'state': '{"customer_tier": "gold", "message": "The blender arrived with a cracked jug. Replace it before Friday."}',
     'questions': {
@@ -118,8 +123,8 @@ record = {
 print(probs['route'])          # [p_returns, p_billing], sums to 1
 ```
 
-`python examples/quickstart.py --weights model.ejpack [--records file.jsonl]` does the same for `ej.EXAMPLE_RECORD` or
-your file. `ej.load('model.ejpack', low_memory=True)` gives the same predictions with less memory, more slowly. A weights
+`python examples/quickstart.py --weights 5ak3t/ej --revision v0.0.1 [--records file.jsonl]` does the same for
+`ej.EXAMPLE_RECORD` or your file (`--weights model.ejpack` for a local file). `ej.load('model.ejpack', low_memory=True)` gives the same predictions with less memory, more slowly. A weights
 directory (safetensors + JSON, what `fit` writes) also loads; that format builds the encoder from the base model, which it
 fetches from the Hugging Face Hub on first use.
 
@@ -133,8 +138,9 @@ option order, plain floats summing to 1 (within 1e-9).
 batch composition and thread count move probabilities only at float-noise level (measured max |Δp| about 6e-7).
 `ej.load` leaves torch's thread count, its random state and `transformers` unchanged; `predict(records, threads=None,
 chunk_size=None)` sets threads only inside the call. One loaded model per process. Environment: `EJ_CACHE` (default
-`~/.cache/ej`; receives the pack's tokenizer files), `EJ_COLD=1` (bypass the prediction-time caches); for a weights
-directory also `HF_HOME` and `HF_HUB_OFFLINE=1` (offline with a filled cache).
+`~/.cache/ej`; receives the pack's tokenizer files), `EJ_COLD=1` (bypass the prediction-time caches), `HF_HOME` (the
+Hugging Face cache: the downloaded `model.ejpack`, and the base model of a weights directory) and `HF_HUB_OFFLINE=1`
+(offline with a filled cache).
 
 ## Adapting to your workflow
 
@@ -182,8 +188,8 @@ private. Summary: [BENCHMARKS.md](BENCHMARKS.md).
 ## Latency
 
 `benchmarks/run_bench.py`, one record per call after a warm-up record, wall clock, 1 torch thread set inside each call
-and checked (`threads_measured` = [1]), development suites, with the weights-directory format of the same model (the
-encoder computes the same fp32 weights in both formats). Box: Intel(R) Xeon(R) Processor @ 2.80GHz, 4 logical cores,
+and checked (`threads_measured` = [1]), development suites, with the weights-directory format of the same model (both
+formats give identical predictions). Box: Intel(R) Xeon(R) Processor @ 2.80GHz, 4 logical cores,
 Python 3.11.15, torch 2.5.1 CPU; 1-minute load average 1.02-1.10; 2026-10-08.
 
 | development suite | records | warm: mean / median ms per record | cold (`EJ_COLD=1`): mean / median ms per record |
@@ -224,7 +230,7 @@ python -m ej.eval score --suite my_suite.jsonl --weights model.ejpack
 The pool is JSONL in the input format plus `source` (the held-out group unit) and `gold: {qid: {label, probs}}`. The steps
 (`encoder` on a GPU, `teachers`, `distil`, `fit` on CPU) can run one by one; the fit is the recipe of ej 0.0.1. The
 0.0.1 training pool itself cannot be rebuilt from public data alone (its ticket corpus is not released). Pool format, public
-sources and their licences, compute: [docs/training.md](docs/training.md); architecture: [docs/architecture.md](docs/architecture.md).
+sources and their licences, compute: [docs/training.md](docs/training.md).
 To compare two recipes, fit each several times with different seeds and use `python -m ej.eval compare` (seed-aware).
 
 ## Repository layout
@@ -232,11 +238,11 @@ To compare two recipes, fit each several times with different seeds and use `pyt
 | path | what |
 |---|---|
 | `ej/` | the package: `load`, `Model.predict`, `Model.adapt`, `AdaptedModel.observe`, records, integrity checks, process scope, pickle-free codec |
-| `ej/pack/` | the packed format `ejpack v1`: writer, sha256-checked pickle-free reader, encoder build from the pack, streaming dequantisation (`low_memory=True`) |
+| `ej/pack/` | the packed format `ejpack v1`: writer, sha256-checked pickle-free reader, encoder build from the pack, low-memory mode (`low_memory=True`) |
 | `ej/_runtime/` | the prediction code (39 sha256-pinned modules; [README](ej/_runtime/README.md)) |
 | `ej/train/`, `ej/eval/` | training (`python -m ej.train`) and evaluation (`python -m ej.eval score / compare`) |
 | `benchmarks/` | runner, scoring, rival adapters, suite builders + checksums, method, aggregate results |
-| `docs/` | model card, data card, release notes, architecture, training, adaptation |
+| `docs/` | model card, data card, release notes, training, adaptation |
 | `examples/`, `tests/`, `scripts/` | quickstart; tests (`pytest`; set `EJ_WEIGHTS=model.ejpack` for the prediction tests); `hf_layout.py`, `state_key.py`, `check_file_length.py` |
 
 ## Citation
@@ -248,7 +254,7 @@ To compare two recipes, fit each several times with different seeds and use `pyt
   year    = {2026},
   version = {0.0.1},
   url     = {https://github.com/5ak3t/ej},
-  note    = {Weights not yet published}
+  note    = {Weights: https://huggingface.co/5ak3t/ej, revision v0.0.1}
 }
 ```
 

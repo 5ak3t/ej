@@ -2,7 +2,9 @@
 
 Summary of the final benchmark of ej 0.0.1 (2026-10-08). Full tables, paired differences and the variability analysis:
 [benchmarks/results/README.md](benchmarks/results/README.md); method, rival choice and contamination flags:
-[benchmarks/METHOD.md](benchmarks/METHOD.md); code: [benchmarks/](benchmarks/README.md).
+[benchmarks/METHOD.md](benchmarks/METHOD.md); code: [benchmarks/](benchmarks/README.md). Weights: https://huggingface.co/5ak3t/ej (revision `v0.0.1`).
+
+Architecture and method: technical report forthcoming.
 
 ## Protocol
 

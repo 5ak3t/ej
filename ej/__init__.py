@@ -4,12 +4,12 @@ Give it a `state` (text, or a JSON object as text) and typed questions (choice /
 probability distribution per question, without generating tokens.
 
     import ej
-    model = ej.load('/path/to/model.ejpack')               # one local model file (README: release status)
+    model = ej.load('5ak3t/ej', revision='v0.0.1')         # the published weights (or a local model.ejpack)
     (probs,) = model.predict([ej.EXAMPLE_RECORD])          # {qid: [p for each option, in option order]}
     adapted = model.adapt(examples=labelled_records)        # optional: adapt to one workflow (ej.adapt)
     adapted.observe(more_labelled_records)                  # fold in labelled records as they arrive
 
-Weights: a packed model file model.ejpack (ej.pack: pickle-free, sha256-checked, nothing downloaded) is the default format;
+Weights: a packed model file model.ejpack (ej.pack: pickle-free, sha256-checked; from the Hub with ej.hub) is the default format;
 `ej.load(..., low_memory=True)` streams the encoder's 2/3-bit weights (less memory, slower, identical predictions). A weights
 directory (safetensors + JSON, `python -m ej.train fit` output) still loads, and fetches the base model on first use.
 The prediction code lives in ej/_runtime (sha256-pinned modules), imported by bare module name from a sys.path entry that ej
@@ -74,7 +74,8 @@ class Model:
 
 def load(path, revision=None, verify=True, threads=DEFAULT_THREADS, chunk_size=Model.CHUNK, memo_max=None, low_memory=False):
     """Load an ej model: a model.ejpack file or a directory holding one (the default format, ej.pack), else a weights directory
-    (safetensors + JSON) or a Hugging Face repo id (pin `revision` to a commit for reproducibility).
+    (safetensors + JSON), or a Hugging Face repo id such as '5ak3t/ej' (only its model.ejpack is downloaded, sha256-checked
+    against ej.integrity.KNOWN_PACK_FILES; pin `revision` to a tag or commit, e.g. 'v0.0.1').
     verify=True checks the runtime and, for known releases, the weights against the hashes shipped in ej.integrity, before
     decoding; loading never unpickles. low_memory=True (packs only): the encoder keeps its 2/3-bit codes and dequantises each
     weight inside forward (identical predictions, lower peak memory, slower). threads / chunk_size: Model defaults for predict;

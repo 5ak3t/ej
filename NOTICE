@@ -2,13 +2,13 @@ ej
 Copyright 2026 Saket Bhushan.
 
 Code (this repository: ej/, benchmarks/, docs/, examples/, tests/, scripts/) is licensed under the Apache License, Version
-2.0 (see LICENSE). The model weights (not yet published; distributed separately from this repository) are licensed under
-CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/; full text in LICENSES/CC-BY-SA-4.0.txt).
+2.0 (see LICENSE). The model weights (distributed separately from this repository, at https://huggingface.co/5ak3t/ej)
+are licensed under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/; full text in LICENSES/CC-BY-SA-4.0.txt).
 
 ej model weights 0.0.1
 ----------------------
 This model is a modified version of intfloat/e5-small-v2 (MIT License; Wang et al., arXiv:2212.03533; revision
-ffb93f3bd4047442299a41ebb6fa998a38507c52): vocabulary trimmed, weights quantised to 2/3 bits and re-trained by
+ffb93f3bd4047442299a41ebb6fa998a38507c52): vocabulary trimmed, weights compressed and re-trained by
 distillation. MIT licence text: LICENSES/MIT-e5-small-v2.txt. The upstream repository declares "license: mit" in its model
 card metadata but ships no LICENSE file, so the copyright line there names the authors of intfloat/e5-small-v2.
 
@@ -30,7 +30,7 @@ Training data. Every dataset below was converted to typed questions and re-sampl
 Distillation signals (fit time only; no teacher weights are included): a decision encoder fine-tuned on the same pool,
 and the NLI cross-encoder cross-encoder/nli-deberta-v3-xsmall (Apache-2.0; Creator: the sentence-transformers project,
 Hugging Face organisation "cross-encoder"; Link: https://huggingface.co/cross-encoder/nli-deberta-v3-xsmall; trained on
-SNLI (CC BY-SA 4.0) and MultiNLI), whose logits on pool texts are distilled into a small pair head on the shared encoder.
+SNLI (CC BY-SA 4.0) and MultiNLI), whose outputs on pool texts are distilled into the model.
 Not used: Amazon counterfactual (amazon-research/amazon-multilingual-counterfactual-dataset), whose upstream licence is
 CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/), although the mteb/amazon_counterfactual mirror declares CC BY 4.0.
 
@@ -48,7 +48,7 @@ Q1  Claude Haiku outputs (780 training records): whether the provider terms that
 Q2  Typed Decisions gold distributions: which model produced the dataset's teacher distributions used as gold
     probabilities, and whether its output terms impose conditions, is not recorded.
 Q3  MultiNLI licence split (which genres are CC BY-SA 3.0 and which OANC terms) and whether distillation counts as an
-    adaptation; relevant to 0.0.1 (its NLI pair head is distilled from a cross-encoder trained on MultiNLI).
+    adaptation; relevant to 0.0.1 (part of it is distilled from a cross-encoder trained on MultiNLI).
 Q4  GoEmotions source texts are Reddit comments: the dataset is Apache-2.0, but the platform terms for the comment texts
     were not reviewed.
 
