@@ -244,7 +244,7 @@ To compare two recipes, fit each several times with different seeds and use `pyt
 ```bibtex
 @software{ej_2026,
   title   = {ej: calibrated typed decisions on device},
-  author  = "{The ej contributors}",
+  author  = {Saket Bhushan},
   year    = {2026},
   version = {0.0.1},
   url     = {https://github.com/5ak3t/ej},
