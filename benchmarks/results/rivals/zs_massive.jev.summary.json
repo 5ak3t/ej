@@ -1,0 +1,16 @@
+{
+ "rival": "jev",
+ "suite": "zs_massive",
+ "records": 1000,
+ "nll": 0.2342,
+ "soft_ce": null,
+ "acc": 0.957,
+ "ece15": 0.0204,
+ "ca": 1.0,
+ "ca_risk": 0.0359,
+ "questions": 1000,
+ "ms_per_record": 332.7,
+ "p50_ms": 313.9,
+ "load_plus_warmup_s": 0.4,
+ "threads": 1
+}

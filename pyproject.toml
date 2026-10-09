@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ej"
+version = "0.0.1"
+description = "Calibrated typed decisions (choice / yes-no / score) in one pass, on device, without generating tokens"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "The ej contributors" }]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+# Pinned to the versions the release was tested with (Python 3.11.15, CPU).
+dependencies = [
+    "torch==2.5.1",
+    "transformers==5.18.0",
+    "tokenizers==0.23.2",
+    "safetensors==0.8.0",
+    "huggingface_hub==1.33.0",
+    "numpy==2.2.6",
+]
+
+[project.optional-dependencies]
+eval = ["scipy==1.17.1"]
+train = ["scipy==1.17.1", "sentencepiece==0.2.2", "protobuf==7.36.2"]
+test = ["pytest>=8", "scipy==1.17.1"]
+
+[project.urls]
+Homepage = "https://github.com/5ak3t/ej"
+
+[tool.setuptools]
+packages = ["ej", "ej.eval", "ej.pack", "ej.train"]
+
+[tool.setuptools.package-data]
+ej = ["_runtime/*.py", "_runtime/RUNTIME_SHA256", "_runtime/README.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "benchmarks"]

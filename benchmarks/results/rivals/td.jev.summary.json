@@ -1,0 +1,16 @@
+{
+ "rival": "jev",
+ "suite": "td",
+ "records": 300,
+ "nll": 0.6239,
+ "soft_ce": 1.3695,
+ "acc": 0.7367,
+ "ece15": 0.0377,
+ "ca": 0.2584,
+ "ca_risk": 0.0151,
+ "questions": 1500,
+ "ms_per_record": 323.3,
+ "p50_ms": 313.8,
+ "load_plus_warmup_s": 0.4,
+ "threads": 1
+}

@@ -1,0 +1,16 @@
+{
+ "rival": "julia-1",
+ "suite": "tickets",
+ "records": 169,
+ "nll": 1.907,
+ "soft_ce": null,
+ "acc": 0.5128,
+ "ece15": 0.3314,
+ "ca": 0.0,
+ "ca_risk": null,
+ "questions": 507,
+ "ms_per_record": 769.8,
+ "p50_ms": 735.8,
+ "load_plus_warmup_s": 2.9,
+ "threads": 1
+}

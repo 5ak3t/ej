@@ -1,0 +1,62 @@
+ej
+Copyright 2026 The ej contributors.
+
+Code (this repository: ej/, benchmarks/, docs/, examples/, tests/, scripts/) is licensed under the Apache License, Version
+2.0 (see LICENSE). The model weights (not yet published; distributed separately from this repository) are licensed under
+CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/; full text in LICENSES/CC-BY-SA-4.0.txt).
+
+ej model weights 0.0.1
+----------------------
+This model is a modified version of intfloat/e5-small-v2 (MIT License; Wang et al., arXiv:2212.03533; revision
+ffb93f3bd4047442299a41ebb6fa998a38507c52): vocabulary trimmed, weights quantised to 2/3 bits and re-trained by
+distillation. MIT licence text: LICENSES/MIT-e5-small-v2.txt. The upstream repository declares "license: mit" in its model
+card metadata but ships no LICENSE file, so the copyright line there names the authors of intfloat/e5-small-v2.
+
+Training data. Every dataset below was converted to typed questions and re-sampled: modified.
+- Typed Decisions. Creator: the publishers of the Hugging Face dataset LocalLLaMA/typed-decisions.
+  Link: https://huggingface.co/datasets/LocalLLaMA/typed-decisions
+  Licence: Apache-2.0, https://www.apache.org/licenses/LICENSE-2.0. Modified: yes (converted; gold teacher distributions kept).
+- Banking77. Creator: PolyAI (Casanueva et al., 2020, "Efficient Intent Detection with Dual Sentence Encoders").
+  Link: https://huggingface.co/datasets/PolyAI/banking77
+  Licence: CC BY 4.0, https://creativecommons.org/licenses/by/4.0/. Modified: yes (choice questions, leak-free distractors).
+- CLINC150 (config "plus"). Creator: Clinc (Larson et al., 2019, "An Evaluation Dataset for Intent Classification and
+  Out-of-Scope Prediction"). Link: https://huggingface.co/datasets/clinc/clinc_oos
+  Licence: CC BY 3.0, https://creativecommons.org/licenses/by/3.0/. Modified: yes (choice questions, leak-free distractors).
+- GoEmotions (simplified). Creator: Google Research (Demszky et al., 2020, "GoEmotions: A Dataset of Fine-Grained
+  Emotions"). Link: https://huggingface.co/datasets/google-research-datasets/go_emotions
+  Licence: Apache-2.0, https://www.apache.org/licenses/LICENSE-2.0. Modified: yes (single-label rows, balanced, choice
+  questions).
+- In-house support-ticket corpus written with Claude Haiku (Anthropic, claude-haiku-4-5-20251001); not released.
+Distillation signals (fit time only; no teacher weights are included): a decision encoder fine-tuned on the same pool,
+and the NLI cross-encoder cross-encoder/nli-deberta-v3-xsmall (Apache-2.0; Creator: the sentence-transformers project,
+Hugging Face organisation "cross-encoder"; Link: https://huggingface.co/cross-encoder/nli-deberta-v3-xsmall; trained on
+SNLI (CC BY-SA 4.0) and MultiNLI), whose logits on pool texts are distilled into a small pair head on the shared encoder.
+Not used: Amazon counterfactual (amazon-research/amazon-multilingual-counterfactual-dataset), whose upstream licence is
+CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/), although the mteb/amazon_counterfactual mirror declares CC BY 4.0.
+
+Evaluation data (benchmark suites; not training data)
+-----------------------------------------------------
+MASSIVE (Amazon, FitzGerald et al., 2022; https://huggingface.co/datasets/AmazonScience/massive; CC BY 4.0,
+https://creativecommons.org/licenses/by/4.0/; modified: leak-free option sets). Typed Decisions test split (as above).
+zs_wide: Super-NaturalInstructions permissive tasks, Schema-Guided Dialogue (CC BY-SA 4.0), ABCD (MIT) and GLM-synthetic
+workflows generated with glm-4.7; suite files are not distributed.
+
+Open licence questions (disclosed, not resolved; the owners decide)
+-------------------------------------------------------------------
+Q1  Claude Haiku outputs (780 training records): whether the provider terms that applied when the tickets were generated
+    allow training openly released weights on them, and what licence the corpus itself carries, are not recorded.
+Q2  Typed Decisions gold distributions: which model produced the dataset's teacher distributions used as gold
+    probabilities, and whether its output terms impose conditions, is not recorded.
+Q3  MultiNLI licence split (which genres are CC BY-SA 3.0 and which OANC terms) and whether distillation counts as an
+    adaptation; relevant to 0.0.1 (its NLI pair head is distilled from a cross-encoder trained on MultiNLI).
+Q4  GoEmotions source texts are Reddit comments: the dataset is Apache-2.0, but the platform terms for the comment texts
+    were not reviewed.
+
+Adaptations of the weights must be shared under CC BY-SA 4.0 or a compatible licence, with attribution.
+
+Benchmark adapters
+------------------
+benchmarks/rivals/ calls third-party models through their own packages, servers or APIs; no third-party source code is
+copied into this repository. Those models keep their own licences and terms (benchmarks/METHOD.md).
+
+"Jev" and "System One" are names used by TypeSafe.ai; ej is not affiliated with or endorsed by TypeSafe.ai.

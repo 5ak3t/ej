@@ -1,0 +1,16 @@
+{
+ "rival": "julia-1",
+ "suite": "zs_massive",
+ "records": 1000,
+ "nll": 0.7302,
+ "soft_ce": null,
+ "acc": 0.792,
+ "ece15": 0.1204,
+ "ca": 0.6587,
+ "ca_risk": 0.0545,
+ "questions": 1000,
+ "ms_per_record": 106.6,
+ "p50_ms": 104.3,
+ "load_plus_warmup_s": 2.7,
+ "threads": 1
+}

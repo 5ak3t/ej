@@ -1,0 +1,32 @@
+{
+ "rival": "ej",
+ "suite": "td",
+ "records": 164,
+ "nll": 0.6489,
+ "soft_ce": 1.0891,
+ "acc": 0.7329,
+ "ece15": 0.047,
+ "ca": 0.2377,
+ "ca_risk": 0.061,
+ "questions": 820,
+ "ms_per_record": 356.6,
+ "p50_ms": 363.1,
+ "load_plus_warmup_s": 9.5,
+ "threads": 1,
+ "threads_measured": [
+  1
+ ],
+ "threads_ok": true,
+ "cache": "warm",
+ "box": {
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+  "cores": 4,
+  "python": "3.11.15"
+ },
+ "loadavg_1m": [
+  1.1,
+  1.09
+ ],
+ "weights": "ej 0.0.1, state 3b3e66d28fb423f9",
+ "suite_file": "development suite td (sha256 in benchmarks/suites/SHA256SUMS)"
+}

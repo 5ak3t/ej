@@ -1,0 +1,29 @@
+# weights never go into git
+*.pt
+*.pth
+*.safetensors
+*.ejpack
+*.gguf
+*.bin
+*.json.gz
+weights/
+hf-out/
+# caches and build output
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+# benchmark outputs (per-record predictions stay local; only aggregate summaries are committed)
+bench-out/
+*.preds.jsonl
+# training work directories and data (pools and suites never go into git)
+*.work/
+/work/
+/data/
+/pools/
+/suites-local/
+*.dump.json
+ledger.jsonl

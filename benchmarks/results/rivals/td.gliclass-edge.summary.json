@@ -1,0 +1,16 @@
+{
+ "rival": "gliclass-edge",
+ "suite": "td",
+ "records": 300,
+ "nll": 2.5769,
+ "soft_ce": 2.5686,
+ "acc": 0.3667,
+ "ece15": 0.4008,
+ "ca": 0.0,
+ "ca_risk": null,
+ "questions": 1500,
+ "ms_per_record": 651.2,
+ "p50_ms": 714.0,
+ "load_plus_warmup_s": 4.8,
+ "threads": 1
+}

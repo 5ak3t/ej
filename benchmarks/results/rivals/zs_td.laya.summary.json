@@ -1,0 +1,16 @@
+{
+ "rival": "laya",
+ "suite": "zs_td",
+ "records": 100,
+ "nll": 0.7582,
+ "soft_ce": 0.9626,
+ "acc": 0.766,
+ "ece15": 0.2489,
+ "ca": 0.1023,
+ "ca_risk": 0.0,
+ "questions": 500,
+ "ms_per_record": 13046.0,
+ "p50_ms": 13205.8,
+ "load_plus_warmup_s": 20.3,
+ "threads": 1
+}

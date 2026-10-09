@@ -1,0 +1,11 @@
+# sha256 of the benchmark suite files (development and final splits), from the suite builders' manifest.
+# Public suites: rebuild with build_public.py. Ticket suites: private corpus, checksums only.
+c4e9ad8a58f21e8019c3c53fb82d9e0eb26aa89dcad47065fe993e61c9d7568c  dev/td.jsonl
+ad00d436dd2b9385d6f1002e30f6f62a4d964c2186da9eb5f7b4a427b11294c5  dev/zs_td.jsonl
+c9bc9a32c528565649ad808844350c1edf60fc60dec8ce0f180ef9aca8362e6f  dev/zs_massive.jsonl
+f270586692bcf0adc35ee8a82c5640db0f466b2859426783fdce025d998f1e60  dev/tickets.jsonl
+d65569abeb903413affc5c27aaee5411f3b756331053acd996951e8461812cf8  final/td.jsonl
+d131780358a91272a3bdbc5ec354475e1d03731de0e0e7f10a6660c71cea09dd  final/zs_td.jsonl
+3bf50a20b28c4fa28556450c175bd69461b7f9818c88cbb39c0bf6f21d1c9d5a  final/zs_massive.jsonl
+a9218dc518f918c4dce21a30c257ff929e3bdb210a6c3d9e4841727933abd832  final/tickets.jsonl
+48e326cbf46321dbd7001619c8873ed5fee26a9804902cf37bdc97068d31dfd7  final/tickets_ood.jsonl

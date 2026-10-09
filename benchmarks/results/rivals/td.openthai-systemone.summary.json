@@ -1,0 +1,16 @@
+{
+ "rival": "openthai-systemone",
+ "suite": "td",
+ "records": 300,
+ "nll": 1.2929,
+ "soft_ce": 1.5577,
+ "acc": 0.5153,
+ "ece15": 0.2941,
+ "ca": 0.0403,
+ "ca_risk": 0.0645,
+ "questions": 1500,
+ "ms_per_record": 7403.9,
+ "p50_ms": 7703.2,
+ "load_plus_warmup_s": 92.3,
+ "threads": 1
+}

@@ -1,0 +1,16 @@
+{
+ "rival": "kev-0.8b",
+ "suite": "zs_td",
+ "records": 100,
+ "nll": 1.035,
+ "soft_ce": 1.1378,
+ "acc": 0.52,
+ "ece15": 0.105,
+ "ca": 0.0,
+ "ca_risk": null,
+ "questions": 500,
+ "ms_per_record": 9003.6,
+ "p50_ms": 9043.5,
+ "load_plus_warmup_s": 19.5,
+ "threads": 1
+}

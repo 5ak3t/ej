@@ -1,0 +1,16 @@
+{
+ "rival": "laya",
+ "suite": "tickets_ood",
+ "records": 147,
+ "nll": 0.9646,
+ "soft_ce": null,
+ "acc": 0.6168,
+ "ece15": 0.0717,
+ "ca": 0.0,
+ "ca_risk": null,
+ "questions": 441,
+ "ms_per_record": 3265.1,
+ "p50_ms": 3207.7,
+ "load_plus_warmup_s": 10.5,
+ "threads": 1
+}

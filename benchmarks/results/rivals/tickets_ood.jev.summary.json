@@ -1,0 +1,16 @@
+{
+ "rival": "jev",
+ "suite": "tickets_ood",
+ "records": 147,
+ "nll": 2.457,
+ "soft_ce": null,
+ "acc": 0.6259,
+ "ece15": 0.2421,
+ "ca": 0.0,
+ "ca_risk": null,
+ "questions": 441,
+ "ms_per_record": 426.6,
+ "p50_ms": 325.2,
+ "load_plus_warmup_s": 0.5,
+ "threads": 1
+}

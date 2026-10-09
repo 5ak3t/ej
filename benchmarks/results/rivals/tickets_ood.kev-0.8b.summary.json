@@ -1,0 +1,16 @@
+{
+ "rival": "kev-0.8b",
+ "suite": "tickets_ood",
+ "records": 147,
+ "nll": 0.8564,
+ "soft_ce": null,
+ "acc": 0.6077,
+ "ece15": 0.0836,
+ "ca": 0.0,
+ "ca_risk": null,
+ "questions": 441,
+ "ms_per_record": 4465.5,
+ "p50_ms": 4388.5,
+ "load_plus_warmup_s": 15.1,
+ "threads": 1
+}
