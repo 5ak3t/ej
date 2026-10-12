@@ -21,6 +21,7 @@ print(probs['team'])   # [P(billing), P(tech)]: about [0.97, 0.03]
 <p>
   <a href="https://github.com/5ak3t/ej/actions/workflows/tests.yml"><img alt="tests" src="https://img.shields.io/github/actions/workflow/status/5ak3t/ej/tests.yml?style=for-the-badge&labelColor=000000&label=tests" height="28"></a>
   <a href="https://huggingface.co/5ak3t/ej/tree/v0.0.1"><img alt="Weights: Hugging Face 5ak3t/ej v0.0.1" src="https://img.shields.io/badge/WEIGHTS-5ak3t%2Fej%20v0.0.1-0a0a0a.svg?style=for-the-badge&labelColor=000000&logo=huggingface" height="28"></a>
+  <a href="https://colab.research.google.com/github/5ak3t/ej/blob/main/examples/ej_colab.ipynb"><img alt="Open in Colab" src="https://img.shields.io/badge/open%20in-colab-0a0a0a.svg?style=for-the-badge&labelColor=000000&logo=googlecolab" height="28"></a>
   <a href="LICENSE"><img alt="Code: GPL-3.0" src="https://img.shields.io/badge/code-GPL--3.0-0a0a0a.svg?style=for-the-badge&labelColor=000000" height="28"></a>
   <a href="LICENSES/CC-BY-SA-4.0.txt"><img alt="Weights: CC BY-SA 4.0" src="https://img.shields.io/badge/weights-CC%20BY--SA%204.0-0a0a0a.svg?style=for-the-badge&labelColor=000000" height="28"></a>
 </p>
