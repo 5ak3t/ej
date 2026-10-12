@@ -1,7 +1,19 @@
 # ej
 
-A small on-device model for typed decisions: one calibrated probability distribution per question, in one pass, without
-generating tokens.
+**An 11 MB model that makes typed decisions on CPU. No LLM, no tokens.**
+
+```bash
+pip install ejai
+```
+
+```python
+import ej
+
+model = ej.load('5ak3t/ej', revision='v0.0.1')
+q = {'type': 'noul', 'instructions': 'The customer wants a refund.', 'options': ej.NOUL_OPTIONS}
+(probs,) = model.predict([{'state': 'The jug arrived cracked. I want my money back.', 'questions': {'refund': q}}])
+print(probs['refund'])   # [P(false), P(true)]
+```
 
 <p>
   <a href="https://github.com/5ak3t/ej/actions/workflows/tests.yml"><img alt="tests" src="https://img.shields.io/github/actions/workflow/status/5ak3t/ej/tests.yml?style=for-the-badge&labelColor=000000&label=tests" height="28"></a>
@@ -13,13 +25,6 @@ generating tokens.
 You give ej a `state` (free text, or a JSON object as text) and a set of typed questions; it returns one probability
 distribution per question. There is no LLM at inference. This repository holds the package, the training and evaluation
 code, and the benchmark; the weights are on the Hugging Face Hub.
-
-Architecture and method: technical report forthcoming.
-
-> **Status (2026-10-09): ej 0.0.1. Weights: [huggingface.co/5ak3t/ej](https://huggingface.co/5ak3t/ej/tree/v0.0.1)**,
-> revision `v0.0.1`, one file `model.ejpack` (11,384,312 bytes, SHA-256 `e990e1846cba43f8…`, full value under
-> [Release](#release)). `ej.load("5ak3t/ej", revision="v0.0.1")` fetches it. Every number below was measured with these
-> weights.
 
 ## Highlights
 
@@ -78,6 +83,11 @@ OpenThai-SystemOne, above Julia-1 and gliclass-edge. On the in-house ticket suit
 No latency, size or calibration ranking is claimed.
 
 ## Release
+
+> **Status (2026-10-09): ej 0.0.1. Weights: [huggingface.co/5ak3t/ej](https://huggingface.co/5ak3t/ej/tree/v0.0.1)**,
+> revision `v0.0.1`, one file `model.ejpack` (11,384,312 bytes, SHA-256 `e990e1846cba43f8…`, full value
+> below). `ej.load("5ak3t/ej", revision="v0.0.1")` fetches it. Every number in this README was measured with
+> these weights.
 
 | Version | State key | Weights | Notes |
 |---|---|---|---|
