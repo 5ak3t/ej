@@ -28,4 +28,4 @@ problem, and what you expected.
 
 ## Licence
 
-By contributing you agree that your contribution is licensed under CC BY-SA 4.0 ([LICENSE](LICENSE)).
+By contributing you agree that your code is licensed under GPL-3.0-only ([LICENSE](LICENSE)).
