@@ -8,9 +8,10 @@ version = "0.0.1.post2"
 description = "Calibrated typed decisions (choice / yes-no / score) in one pass, on device, without generating tokens"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "CC-BY-SA-4.0" }
+license = { text = "GPL-3.0-only" }
 authors = [{ name = "Saket Bhushan" }]
 classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Programming Language :: Python :: 3",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
