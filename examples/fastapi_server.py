@@ -9,7 +9,7 @@ Then send a JSON list in the same record format used by the README::
 
     curl -X POST http://127.0.0.1:8000/predict \
       -H 'content-type: application/json' \
-      -d '[{"state":"The parcel arrived late.","questions":{"needs_human":{"type":"noul","instructions":"A human should review this request.","options":[{"key":"false","text":"No"},{"key":"true","text":"Yes"}]}}}]'
+      -d '[{"state":"The parcel arrived late.","questions":{"route":{"type":"choice","instructions":"Which team should handle this ticket?","options":[{"key":"billing","text":"Billing"},{"key":"returns","text":"Returns"},{"key":"tech","text":"Tech support"}]}}}]'
 
 FastAPI and Uvicorn are intentionally not package dependencies. The model is
 loaded once when this module is imported, so requests reuse the same model.
@@ -21,10 +21,9 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 import ej
-
 
 WEIGHTS = os.environ.get("EJ_WEIGHTS", "5ak3t/ej")
 REVISION = os.environ.get("EJ_REVISION", "v0.0.1")
@@ -36,4 +35,7 @@ app = FastAPI(title="ej prediction example")
 @app.post("/predict")
 def predict(records: list[dict[str, Any]]) -> list[dict[str, list[float]]]:
     """Return one probability distribution per question in each record."""
-    return model.predict(records)
+    try:
+        return model.predict(records)
+    except ej.RecordError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
