@@ -3,8 +3,8 @@ Copyright 2026 Saket Bhushan.
 
 Code (this repository: ej/, benchmarks/, docs/, examples/, tests/, scripts/) and the model weights (distributed separately
 from this repository, at https://huggingface.co/5ak3t/ej) are licensed under CC BY-SA 4.0
-(https://creativecommons.org/licenses/by-sa/4.0/; full text in LICENSE). Releases up to 0.0.1.post2 were published with
-the code under the Apache License, Version 2.0.
+(https://creativecommons.org/licenses/by-sa/4.0/; full text in LICENSE and LICENSES/CC-BY-SA-4.0.txt). Releases up to
+0.0.1.post2 were published with the code under the Apache License, Version 2.0.
 
 ej model weights 0.0.1
 ----------------------
