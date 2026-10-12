@@ -10,9 +10,10 @@ pip install ejai
 import ej
 
 model = ej.load('5ak3t/ej', revision='v0.0.1')
-q = {'type': 'noul', 'instructions': 'The customer wants a refund.', 'options': ej.NOUL_OPTIONS}
-(probs,) = model.predict([{'state': 'The jug arrived cracked. I want my money back.', 'questions': {'refund': q}}])
-print(probs['refund'])   # [P(false), P(true)]
+q = {'type': 'choice', 'instructions': 'Which team should handle this ticket?',
+     'options': [{'key': 'billing', 'text': 'Billing and payments'}, {'key': 'tech', 'text': 'Technical problems'}]}
+(probs,) = model.predict([{'state': 'I was charged twice this month.', 'questions': {'team': q}}])
+print(probs['team'])   # [P(billing), P(tech)]: about [0.97, 0.03]
 ```
 
 <p>
