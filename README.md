@@ -25,6 +25,8 @@ You give ej a `state` (free text, or a JSON object as text) and a set of typed q
 distribution per question. There is no LLM at inference. This repository holds the package, the training and evaluation
 code, and the benchmark; the weights are on the Hugging Face Hub.
 
+Architecture and method: technical report forthcoming.
+
 ## Highlights
 
 - Three question types in one call: `choice` (any option texts, chosen at run time), `noul` (a yes/no statement) and
