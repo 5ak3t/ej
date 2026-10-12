@@ -18,8 +18,7 @@ print(probs['refund'])   # [P(false), P(true)]
 <p>
   <a href="https://github.com/5ak3t/ej/actions/workflows/tests.yml"><img alt="tests" src="https://img.shields.io/github/actions/workflow/status/5ak3t/ej/tests.yml?style=for-the-badge&labelColor=000000&label=tests" height="28"></a>
   <a href="https://huggingface.co/5ak3t/ej/tree/v0.0.1"><img alt="Weights: Hugging Face 5ak3t/ej v0.0.1" src="https://img.shields.io/badge/WEIGHTS-5ak3t%2Fej%20v0.0.1-0a0a0a.svg?style=for-the-badge&labelColor=000000&logo=huggingface" height="28"></a>
-  <a href="LICENSE"><img alt="Code: Apache-2.0" src="https://img.shields.io/badge/code-Apache--2.0-0a0a0a.svg?style=for-the-badge&labelColor=000000" height="28"></a>
-  <a href="LICENSES/CC-BY-SA-4.0.txt"><img alt="Weights: CC BY-SA 4.0" src="https://img.shields.io/badge/weights-CC%20BY--SA%204.0-0a0a0a.svg?style=for-the-badge&labelColor=000000" height="28"></a>
+  <a href="LICENSE"><img alt="Licence: CC BY-SA 4.0" src="https://img.shields.io/badge/licence-CC%20BY--SA%204.0-0a0a0a.svg?style=for-the-badge&labelColor=000000" height="28"></a>
 </p>
 
 You give ej a `state` (free text, or a JSON object as text) and a set of typed questions; it returns one probability
@@ -272,8 +271,9 @@ To compare two recipes, fit each several times with different seeds and use `pyt
 
 ## Licence
 
-- Code: **Apache-2.0** (`LICENSE`). Weights: **CC BY-SA 4.0** (`LICENSES/CC-BY-SA-4.0.txt`); adaptations must be shared
-  under CC BY-SA 4.0 or a compatible licence. Base model `intfloat/e5-small-v2`: MIT (`LICENSES/MIT-e5-small-v2.txt`).
+- Code and weights: **CC BY-SA 4.0** (`LICENSE`); adaptations must be shared under CC BY-SA 4.0 or a compatible licence.
+  Releases up to 0.0.1.post2 were published with the code under Apache-2.0. Base model `intfloat/e5-small-v2`: MIT
+  (`LICENSES/MIT-e5-small-v2.txt`).
 - Training data of ej 0.0.1: Typed Decisions (Apache-2.0), Banking77 (CC BY 4.0), CLINC150 (CC BY 3.0), GoEmotions
   (Apache-2.0) and an in-house ticket corpus written with Claude Haiku (not released); NLI teacher
   cross-encoder/nli-deberta-v3-xsmall (Apache-2.0). Creators, links and open licence questions: [NOTICE](NOTICE).
