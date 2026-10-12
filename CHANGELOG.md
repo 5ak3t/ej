@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- The code is now licensed under CC BY-SA 4.0, like the weights (was Apache-2.0). Releases up to 0.0.1.post2 stay
+  under Apache-2.0.
+- Links on PyPI: Source, Documentation, Benchmarks and Changelog.
+
 ## 0.0.1.post2 (2026-10-09)
 
 - Fix: `sentencepiece` and `protobuf` are dependencies of the package, not only of the `train` extra; the prediction
