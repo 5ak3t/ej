@@ -2,6 +2,8 @@
 
 **An 11 MB model that makes typed decisions on CPU. No LLM, no tokens.**
 
+**Translations:** [日本語](docs/i18n/README.ja.md)
+
 <img src="https://raw.githubusercontent.com/5ak3t/ej/main/docs/ej-demo.gif" alt="ej routing three support tickets to billing, returns and tech support, with the probability of each team" width="800">
 
 ```bash
