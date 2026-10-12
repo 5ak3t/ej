@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use ej, please cite it as below."
+title: "ej: calibrated typed decisions on device"
+type: software
+authors:
+  - given-names: Saket
+    family-names: Bhushan
+version: 0.0.1
+date-released: 2026-10-09
+license: Apache-2.0
+repository-code: "https://github.com/5ak3t/ej"
+url: "https://huggingface.co/5ak3t/ej"
+keywords:
+  - zero-shot-classification
+  - calibration
+  - decision-making
+  - nlp
