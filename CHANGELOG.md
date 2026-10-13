@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- `python -m ej.serve`: ej over HTTP in the System One wire format (`POST /v1/systemone`, `GET /health`), for clients and
+  benchmark harnesses of Jev-compatible servers (`ej/serve.py`, `ej/serve_wire.py`). Texts longer than the encoder's
+  256-token window are refused with HTTP 422 by default (`--overflow reject`); `--overflow truncate` answers with ej's
+  native truncation and marks the response `"truncated": true`. Model and weights unchanged.
+
 ## 0.0.1.post2 (2026-10-09)
 
 - Fix: `sentencepiece` and `protobuf` are dependencies of the package, not only of the `train` extra; the prediction
