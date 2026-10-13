@@ -9,6 +9,8 @@
 - Fix (training): `ej.train distil` / `fit` fetch the NLI teacher `cross-encoder/nli-deberta-v3-xsmall` at its pinned revision
   (`a1508764`) when it is not cached; before, a fresh machine failed mid-fit (the runtime reads the cache and downloads
   nothing), and a cache holding another revision is now refused instead of being trained on.
+- Fix (training): the encoder step left the runtime's base encoder on the GPU, so `ej.train fit` on a GPU machine failed
+  right after it (the rest of the fit is CPU code); `ej/train/lowbit.py` now moves it back.
 
 ## 0.0.1.post2 (2026-10-09)
 

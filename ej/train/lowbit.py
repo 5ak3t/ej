@@ -250,4 +250,5 @@ def run(variant='w23'):
     torch.save(ck, f'{d}/{variant}.pt.tmp'); os.replace(f'{d}/{variant}.pt.tmp', f'{d}/{variant}.pt')  # noqa: E702
     json.dump(rep, open(f'{d}/report-{variant}.json', 'w'), indent=1)
     log(f'final {json.dumps(rep)}')
+    teach.to('cpu')  # Module.to moved the runtime's shared base encoder; the rest of a fit is CPU code that reuses it
     return d
