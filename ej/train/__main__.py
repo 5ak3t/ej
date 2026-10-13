@@ -34,7 +34,8 @@ def cmd_teachers(a):
 
 def cmd_distil(a):
     _start(a)
-    from . import distil
+    from . import distil, env
+    env.nli_teacher()
     distil.run()
 
 
@@ -45,7 +46,8 @@ def cmd_fit(a):
     if os.path.exists(out) and os.listdir(out):
         sys.exit(f'ej.train fit: {out} is not empty; choose a new --out')
     _start(a)
-    from . import fit
+    from . import env, fit
+    env.nli_teacher()
     fit.fit(out)
     print(out)
 

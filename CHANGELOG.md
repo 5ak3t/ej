@@ -6,6 +6,9 @@
   benchmark harnesses of Jev-compatible servers (`ej/serve.py`, `ej/serve_wire.py`). Texts longer than the encoder's
   256-token window are refused with HTTP 422 by default (`--overflow reject`); `--overflow truncate` answers with ej's
   native truncation and marks the response `"truncated": true`. Model and weights unchanged.
+- Fix (training): `ej.train distil` / `fit` fetch the NLI teacher `cross-encoder/nli-deberta-v3-xsmall` at its pinned revision
+  (`a1508764`) when it is not cached; before, a fresh machine failed mid-fit (the runtime reads the cache and downloads
+  nothing), and a cache holding another revision is now refused instead of being trained on.
 
 ## 0.0.1.post2 (2026-10-09)
 

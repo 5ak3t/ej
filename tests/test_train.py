@@ -126,3 +126,16 @@ def test_seed_claims_its_work_directory(tmp_path):
     (tmp_path / 'ckpt' / 'dd-cafe.pt').write_bytes(b'x')
     with pytest.raises(RuntimeError, match='separate --work'):
         seed.claim(str(tmp_path), 3)
+
+
+def test_nli_teacher_uses_only_the_pinned_snapshot(tmp_path, monkeypatch):
+    """The runtime's NLI reader takes the first cached snapshot: the pinned one is used as cached, another one is refused."""
+    from ej.train import env
+    repo, rev = env.NLI_TEACHER
+    monkeypatch.setenv('HF_HOME', str(tmp_path))
+    snaps = tmp_path / 'hub' / ('models--' + repo.replace('/', '--')) / 'snapshots'
+    (snaps / rev).mkdir(parents=True)
+    assert env.nli_teacher() == str(snaps / rev)  # cached: nothing is downloaded
+    (snaps / ('0' * 40)).mkdir()
+    with pytest.raises(RuntimeError, match='needs exactly'):
+        env.nli_teacher()

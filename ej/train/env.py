@@ -13,6 +13,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RUNTIME = os.path.join(os.path.dirname(HERE), '_runtime')
+NLI_TEACHER = ('cross-encoder/nli-deberta-v3-xsmall', 'a150876415327c80daeff35ca6f68f5ed8cf5c24')  # the ej 0.0.1 fit's teacher
 _DONE = {}
 
 
@@ -65,6 +66,22 @@ def pool_path():
 def threads():
     """Torch threads for training (EJ_THREADS, default 2)."""
     return int(os.environ.get('EJ_THREADS', '2'))
+
+
+def nli_teacher():
+    """Put the pinned NLI teacher (NLI_TEACHER) into the Hugging Face cache the runtime reads, and return its snapshot directory.
+    The runtime (student_nli.load) takes the first $HF_HOME/hub/models--<repo>/snapshots/*/ it finds and downloads nothing, so a
+    cache without it fails mid-fit and a cache holding another revision would silently train on that one: refused here."""
+    repo, rev = NLI_TEACHER
+    hub = os.path.join(os.environ.get('HF_HOME') or os.path.join(os.path.expanduser('~'), '.cache', 'huggingface'), 'hub')
+    snaps = os.path.join(hub, 'models--' + repo.replace('/', '--'), 'snapshots')
+    have = sorted(os.listdir(snaps)) if os.path.isdir(snaps) else []
+    if have and have != [rev]:
+        raise RuntimeError(f'{snaps} holds {have}; the fit needs exactly {repo}@{rev} there (remove the other snapshots)')
+    if not have:
+        from huggingface_hub import snapshot_download
+        snapshot_download(repo, revision=rev, cache_dir=hub)
+    return os.path.join(snaps, rev)
 
 
 def _same(a, b):

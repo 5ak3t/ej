@@ -69,6 +69,8 @@ finished step is never repeated and an interrupted run resumes. `fit` trains wha
 `--parts` runs single teachers (`full`, `fold0`..`fold3`, `p01`..`p23`), so they can run in parallel processes on one work
 directory. Environment: `EJ_DEVICE=cuda|cpu`, `EJ_THREADS` (torch threads, default 2), `EJ_CACHE` (encoder cache; default
 `<work>/cache`), `HF_HOME` (base models: `intfloat/e5-small-v2`, and for the teacher `cross-encoder/nli-deberta-v3-xsmall`).
+`distil` and `fit` put the teacher into that cache at its pinned revision (`ej.train.env.NLI_TEACHER`, the 0.0.1 fit's) and
+refuse a cache that holds another revision of it, because the runtime reads the first cached snapshot it finds.
 Compute, for scale: the teachers take about an hour of CPU in total, and a fit of this code with every
 checkpoint present took about 46 minutes on a 4-core CPU for a pool of about 12,700 records (2,785.7 s, recorded in the
 fitted state's metadata).
