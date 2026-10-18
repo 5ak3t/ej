@@ -4,6 +4,8 @@ Issues and pull requests are welcome. Issues labelled `good first issue` are a g
 
 ## Set up
 
+Python >= 3.10 is required (the package was tested on 3.11). Full test dependencies (including recent scipy) need Python >= 3.11.
+
 ```bash
 git clone https://github.com/5ak3t/ej && cd ej
 pip install -e '.[test]'
